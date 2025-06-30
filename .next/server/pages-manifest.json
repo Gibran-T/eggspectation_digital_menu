@@ -1,7 +1,0 @@
-{
-  "/_app": "pages/_app.js",
-  "/_error": "pages/_error.js",
-  "/_document": "pages/_document.js",
-  "/menu": "pages/menu.js",
-  "/category/savoury_crepes": "pages/category/savoury_crepes.js"
-}
