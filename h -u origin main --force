@@ -5,3 +5,4 @@
       Notes in parentheses indicate the behavior if _N is given.
       A key preceded by a caret indicates the Ctrl key; thus ^K is ctrl-K.
 
+  h  H                 Display this help.
