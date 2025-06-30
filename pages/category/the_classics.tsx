@@ -483,7 +483,8 @@ const TheClassics = () => {
         alt="Spicy"
         className="w-4 h-4"
         onError={(e) => {
-          e.target.style.display = 'none';
+          const target = e.target as HTMLImageElement;
+          target.style.display = 'none';
         }}
       />
     ));
