@@ -1,0 +1,128 @@
+/* Otimizações específicas para tablet */
+
+/* Orientação Portrait (Vertical) - 1200x1920 */
+@media (orientation: portrait) and (min-width: 768px) and (max-width: 1024px) {
+  /* Ajustes para orientação vertical em tablet */
+  .tablet-portrait-spacing {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+  
+  .tablet-portrait-text {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+  }
+}
+
+/* Orientação Landscape (Horizontal) - 1920x1200 */
+@media (orientation: landscape) and (min-width: 1024px) and (max-width: 1920px) {
+  /* Ajustes para orientação horizontal em tablet */
+  .tablet-landscape-layout {
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  
+  .tablet-landscape-sidebar {
+    width: 320px;
+  }
+}
+
+/* Otimizações gerais para tablets */
+@media (min-width: 768px) and (max-width: 1024px) {
+  /* Touch targets maiores para tablet */
+  .touch-target {
+    min-height: 48px;
+    min-width: 48px;
+  }
+  
+  /* Espaçamento otimizado para tablet */
+  .tablet-spacing {
+    padding: 1.5rem;
+  }
+  
+  /* Texto otimizado para leitura em tablet */
+  .tablet-text {
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+  
+  /* Botões otimizados para touch */
+  .tablet-button {
+    padding: 0.875rem 2rem;
+    font-size: 1.125rem;
+    border-radius: 0.75rem;
+  }
+}
+
+/* Prevenção de zoom indesejado */
+input, select, textarea {
+  font-size: 16px !important;
+}
+
+/* Scroll suave para tablet */
+html {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Otimização de performance para Android */
+* {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Permitir seleção de texto onde necessário */
+p, span, div[contenteditable], input, textarea {
+  -webkit-user-select: text;
+  -khtml-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
+/* Animações otimizadas para tablet */
+@media (prefers-reduced-motion: no-preference) {
+  .tablet-animation {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+/* Desabilitar animações se o usuário preferir */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Otimizações específicas para resolução 1200x1920 */
+@media (min-width: 1200px) and (max-width: 1200px) and (min-height: 1920px) and (max-height: 1920px) {
+  /* Estilos específicos para a resolução exata do tablet */
+  .exact-tablet-resolution {
+    /* Ajustes precisos se necessário */
+  }
+}
+
+/* Melhorias de acessibilidade para tablet */
+@media (hover: none) and (pointer: coarse) {
+  /* Dispositivos touch sem hover */
+  .hover-effect {
+    /* Remover efeitos hover em dispositivos touch */
+  }
+  
+  .touch-feedback {
+    /* Adicionar feedback visual para touch */
+    transition: background-color 0.1s ease;
+  }
+  
+  .touch-feedback:active {
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+}
+
