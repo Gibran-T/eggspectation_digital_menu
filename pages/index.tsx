@@ -382,27 +382,43 @@ export default function Cover() {
         </div>
       </main>
 
-      {/* Rodapé com QR Code */}
+      {/* Rodapé com QR Code - ATUALIZADO */}
       <footer className="relative z-10 flex flex-col items-center gap-4 px-6 pb-8">
-        {/* QR Code Container */}
+        {/* QR Code Container - RESPONSIVO E ELEGANTE */}
         <div className="relative group">
+          {/* Efeito de brilho de fundo */}
           <div className={`absolute inset-0 rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-300 ${
             backgroundTheme === 'golden' ? 'bg-white/20' : 'bg-white/30'
           }`}></div>
-          <div className={`relative backdrop-blur-sm p-8 md:p-9 rounded-3xl shadow-2xl border group-hover:scale-105 transition-all duration-300 ${
+          
+          {/* Container principal do QR */}
+          <div className={`relative backdrop-blur-sm p-6 md:p-8 rounded-3xl shadow-2xl border group-hover:scale-105 transition-all duration-300 ${
             backgroundTheme === 'golden' 
               ? 'bg-white/90 border-white/30' 
-              : 'bg-gray-50 border-gray-200'
+              : 'bg-gray-50/95 border-gray-200/50'
           }`}>
+            {/* QR Code Image - RESPONSIVO */}
             <img
-              src="/qrcodes/eggspectation_qr_artistic.jpg"
-              alt="Scan for promotion"
-              className="w-48 h-48 md:w-56 md:h-56 rounded-2xl"
+              src="/qrcodes/qr_blue_inspired_functional.jpg"
+              alt={current.scan}
+              className="w-40 h-40 sm:w-48 sm:h-48 md:w-56 md:h-56 lg:w-64 lg:h-64 rounded-2xl object-cover shadow-lg"
+              style={{
+                filter: backgroundTheme === 'navy' 
+                  ? 'drop-shadow(0 0 20px rgba(255, 255, 255, 0.3))' 
+                  : 'drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15))'
+              }}
             />
+            
+            {/* Indicador de scan - OPCIONAL */}
+            <div className={`absolute -top-2 -right-2 w-6 h-6 rounded-full animate-pulse ${
+              backgroundTheme === 'golden' ? 'bg-blue-900' : 'bg-blue-600'
+            }`}>
+              <div className="absolute inset-1 bg-white rounded-full"></div>
+            </div>
           </div>
         </div>
 
-        {/* QR Code Message - SEM CARD NO TEMA NAVY */}
+        {/* QR Code Message - ADAPTADO PARA AMBOS OS TEMAS */}
         <div className="text-center mb-4">
           {backgroundTheme === 'golden' ? (
             <div className="bg-blue-900/90 backdrop-blur-sm text-white px-6 py-3 rounded-2xl shadow-lg border border-blue-800/30">
@@ -411,13 +427,13 @@ export default function Cover() {
               </p>
             </div>
           ) : (
-            <p className="text-sm md:text-base font-medium tracking-wide text-gray-100">
+            <p className="text-sm md:text-base font-medium tracking-wide text-gray-100 px-4 py-2 rounded-xl backdrop-blur-sm bg-white/10">
               {current.qrMessage}
             </p>
           )}
         </div>
 
-        {/* Copyright */}
+        {/* Copyright - MANTIDO ORIGINAL */}
         <div className="text-center">
           <p className={`text-sm md:text-base font-medium ${
             backgroundTheme === 'golden' ? 'text-blue-900/60' : 'text-gray-300'
