@@ -245,14 +245,14 @@ export default function CocktailsPage() {
     },
     {
       price: "13.00",
-      image: "/images/RASPBERRY_MOJITO.jpg",
+      image: "/images/raspberry_mojito.jpg",
       tags: [],
       fruity: true,
       spiciness: 0
     },
     {
       price: "13.00",
-      image: "/images/PALOMA.jpg",
+      image: "/images/paloma.jpg",
       tags: [],
       citrus: true,
       spiciness: 0
