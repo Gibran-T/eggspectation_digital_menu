@@ -6,7 +6,7 @@ import { useLanguage } from "../../context/LanguageContext";
 const translations = {
   en: {
     title: "Eggstraordinary Pasta",
-    subtitle: "Classic pasta dishes with an added twist. You have to try them to believe them!",
+    subtitle: "Classic pasta dishes with an added twist. You have to try them to believe them",
     back: "Back",
     badges: {
       signature: "Signature",
@@ -31,7 +31,7 @@ const translations = {
       {
         id: "fradiavolo",
         name: "Fradiavolo",
-        description: "Shrimps sautéed in extra virgin olive oil mixed with tagliatelle and tossed in our San Marzano tomato sauce.",
+        description: "Shrimps sautéed in extra virgin olive oil mixed with tagliatelle and tossed in our San Marzano tomato sauce",
         price: "24.95",
         spicy: true,
         allergens: ["/icons/seafood_icon.png", "/icons/wheat_icon.png"],
@@ -41,7 +41,7 @@ const translations = {
       {
         id: "fiorentina",
         name: "Fiorentina",
-        description: "Spinach, sun dried tomatoes, garlic, white wine and Feta cheese with tagliatelle pasta tossed in our San Marzano tomato sauce. Pasta for cheese lovers.",
+        description: "Spinach, sun dried tomatoes, garlic, white wine and Feta cheese with tagliatelle pasta tossed in our San Marzano tomato sauce. Pasta for cheese lovers",
         price: "21.95",
         italian: true,
         allergens: ["/icons/dairy_icon.png", "/icons/wheat_icon.png"],
@@ -51,7 +51,7 @@ const translations = {
       {
         id: "mac-and-cheese",
         name: "Mac and Cheese",
-        description: "A simple twist on an old favorite, cavatappi pasta tossed in a creamy cheese sauce.",
+        description: "A simple twist on an old favorite, cavatappi pasta tossed in a creamy cheese sauce",
         price: "18.95",
         comfort: true,
         allergens: ["/icons/dairy_icon.png", "/icons/wheat_icon.png"],
@@ -61,7 +61,7 @@ const translations = {
       {
         id: "bacon-mac-and-cheese",
         name: "Bacon Mac and Cheese",
-        description: "A simple twist on an old favorite, cavatappi pasta tossed in a creamy cheese sauce with chopped crispy bacon and caramelized onions.",
+        description: "A simple twist on an old favorite, cavatappi pasta tossed in a creamy cheese sauce with chopped crispy bacon and caramelized onions",
         price: "20.95",
         indulgent: true,
         allergens: ["/icons/dairy_icon.png", "/icons/wheat_icon.png"],
@@ -71,7 +71,7 @@ const translations = {
       {
         id: "lobster-mac-and-cheese",
         name: "Lobster Mac and Cheese",
-        description: "One of our signature dishes, cavatappi pasta tossed in a creamy cheese sauce with diced tomato and generous chunks of succulent lobster meat.",
+        description: "One of our signature dishes, cavatappi pasta tossed in a creamy cheese sauce with diced tomato and generous chunks of succulent lobster meat",
         price: "30.95",
         signature: true,
         allergens: ["/icons/seafood_icon.png", "/icons/dairy_icon.png", "/icons/wheat_icon.png"],
@@ -81,7 +81,7 @@ const translations = {
       {
         id: "mac-and-cheese-smoked-meat",
         name: "Mac and Cheese with Smoked Meat",
-        description: "Old favorite, cavatappi pasta tossed in a creamy sauce and 3 cheeses gratin topped with chopped smoked meat served with 2 pieces of garlic bread.",
+        description: "Old favorite, cavatappi pasta tossed in a creamy sauce and 3 cheeses gratin topped with chopped smoked meat served with 2 pieces of garlic bread",
         price: "22.95",
         hearty: true,
         allergens: ["/icons/dairy_icon.png", "/icons/wheat_icon.png"],
@@ -91,7 +91,7 @@ const translations = {
       {
         id: "creamy-garlic-pasta-chicken",
         name: "Creamy Garlic Pasta with Chicken",
-        description: "Tagliatelle pasta, creamy alfredo sauce topped with grilled chicken. Served with 2 pieces of garlic bread.",
+        description: "Tagliatelle pasta, creamy alfredo sauce topped with grilled chicken. Served with 2 pieces of garlic bread",
         price: "23.95",
         creamy: true,
         allergens: ["/icons/dairy_icon.png", "/icons/wheat_icon.png"],
@@ -101,7 +101,7 @@ const translations = {
       {
         id: "creamy-garlic-pasta-shrimps",
         name: "Creamy Garlic Pasta with Shrimps",
-        description: "Tagliatelle pasta, creamy alfredo sauce topped with shrimps (6). Served with 2 pieces of garlic bread.",
+        description: "Tagliatelle pasta, creamy alfredo sauce topped with shrimps (6). Served with 2 pieces of garlic bread",
         price: "26.95",
         seafood: true,
         allergens: ["/icons/seafood_icon.png", "/icons/dairy_icon.png", "/icons/wheat_icon.png"],
@@ -111,7 +111,7 @@ const translations = {
       {
         id: "penne-arabiata-chicken",
         name: "Penne Arabiata Sauce with Grilled Chicken",
-        description: "Penne pasta with tomato spicy arabiata sauce, sundried tomato, parmesan cheese and arugula with grilled chicken on the top served with 2 pieces of garlic bread.",
+        description: "Penne pasta with tomato spicy arabiata sauce, sundried tomato, parmesan cheese and arugula with grilled chicken on the top served with 2 pieces of garlic bread",
         price: "23.95",
         spicy: true,
         allergens: ["/icons/dairy_icon.png", "/icons/wheat_icon.png"],
@@ -121,7 +121,7 @@ const translations = {
       {
         id: "pesto-cavatappi",
         name: "Pesto Cavatappi",
-        description: "Cavatappi pasta mixed with pesto sauce, cucumber, bell peppers, boiled eggs, topped with chilly flakes and roasted walnuts.",
+        description: "Cavatappi pasta mixed with pesto sauce, cucumber, bell peppers, boiled eggs, topped with chilly flakes and roasted walnuts",
         price: "19.95",
         fresh: true,
         allergens: ["/icons/nuts_icon.png", "/icons/dairy_icon.png", "/icons/wheat_icon.png", "/icons/egg_icon.png"],
@@ -136,7 +136,7 @@ const translations = {
   },
   fr: {
     title: "Pâtes Eggstraordinaires",
-    subtitle: "Plats de pâtes classiques avec une touche supplémentaire. Vous devez les essayer pour les croire!",
+    subtitle: "Plats de pâtes classiques avec une touche supplémentaire. Vous devez les essayer pour les croire",
     back: "Retour",
     badges: {
       signature: "Signature",
@@ -161,7 +161,7 @@ const translations = {
       {
         id: "fradiavolo",
         name: "Fradiavolo",
-        description: "Crevettes sautées dans l'huile d'olive extra vierge mélangées avec des tagliatelles et mélangées dans notre sauce tomate San Marzano.",
+        description: "Crevettes sautées dans l'huile d'olive extra vierge mélangées avec des tagliatelles et mélangées dans notre sauce tomate San Marzano",
         price: "24.95",
         spicy: true,
         allergens: ["/icons/seafood_icon.png", "/icons/wheat_icon.png"],
@@ -171,7 +171,7 @@ const translations = {
       {
         id: "fiorentina",
         name: "Fiorentina",
-        description: "Épinards, tomates séchées, ail, vin blanc et fromage Feta avec pâtes tagliatelles mélangées dans notre sauce tomate San Marzano. Pâtes pour les amateurs de fromage.",
+        description: "Épinards, tomates séchées, ail, vin blanc et fromage Feta avec pâtes tagliatelles mélangées dans notre sauce tomate San Marzano. Pâtes pour les amateurs de fromage",
         price: "21.95",
         italian: true,
         allergens: ["/icons/dairy_icon.png", "/icons/wheat_icon.png"],
@@ -181,7 +181,7 @@ const translations = {
       {
         id: "mac-and-cheese",
         name: "Mac and Cheese",
-        description: "Une simple variante d'un ancien favori, pâtes cavatappi mélangées dans une sauce au fromage crémeuse.",
+        description: "Une simple variante d'un ancien favori, pâtes cavatappi mélangées dans une sauce au fromage crémeuse",
         price: "18.95",
         comfort: true,
         allergens: ["/icons/dairy_icon.png", "/icons/wheat_icon.png"],
@@ -191,7 +191,7 @@ const translations = {
       {
         id: "bacon-mac-and-cheese",
         name: "Bacon Mac and Cheese",
-        description: "Une simple variante d'un ancien favori, pâtes cavatappi mélangées dans une sauce au fromage crémeuse avec bacon croustillant haché et oignons caramélisés.",
+        description: "Une simple variante d'un ancien favori, pâtes cavatappi mélangées dans une sauce au fromage crémeuse avec bacon croustillant haché et oignons caramélisés",
         price: "20.95",
         indulgent: true,
         allergens: ["/icons/dairy_icon.png", "/icons/wheat_icon.png"],
@@ -201,7 +201,7 @@ const translations = {
       {
         id: "lobster-mac-and-cheese",
         name: "Lobster Mac and Cheese",
-        description: "Un de nos plats signature, pâtes cavatappi mélangées dans une sauce au fromage crémeuse avec tomate en dés et généreux morceaux de chair de homard succulente.",
+        description: "Un de nos plats signature, pâtes cavatappi mélangées dans une sauce au fromage crémeuse avec tomate en dés et généreux morceaux de chair de homard succulente",
         price: "30.95",
         signature: true,
         allergens: ["/icons/seafood_icon.png", "/icons/dairy_icon.png", "/icons/wheat_icon.png"],
@@ -211,7 +211,7 @@ const translations = {
       {
         id: "mac-and-cheese-smoked-meat",
         name: "Mac and Cheese avec Viande Fumée",
-        description: "Ancien favori, pâtes cavatappi mélangées dans une sauce crémeuse et gratin de 3 fromages garni de viande fumée hachée servi avec 2 morceaux de pain à l'ail.",
+        description: "Ancien favori, pâtes cavatappi mélangées dans une sauce crémeuse et gratin de 3 fromages garni de viande fumée hachée servi avec 2 morceaux de pain à l'ail",
         price: "22.95",
         hearty: true,
         allergens: ["/icons/dairy_icon.png", "/icons/wheat_icon.png"],
@@ -221,7 +221,7 @@ const translations = {
       {
         id: "creamy-garlic-pasta-chicken",
         name: "Pâtes Crémeuses à l'Ail avec Poulet",
-        description: "Pâtes tagliatelles, sauce alfredo crémeuse garnie de poulet grillé. Servi avec 2 morceaux de pain à l'ail.",
+        description: "Pâtes tagliatelles, sauce alfredo crémeuse garnie de poulet grillé. Servi avec 2 morceaux de pain à l'ail",
         price: "23.95",
         creamy: true,
         allergens: ["/icons/dairy_icon.png", "/icons/wheat_icon.png"],
@@ -231,7 +231,7 @@ const translations = {
       {
         id: "creamy-garlic-pasta-shrimps",
         name: "Pâtes Crémeuses à l'Ail avec Crevettes",
-        description: "Pâtes tagliatelles, sauce alfredo crémeuse garnie de crevettes (6). Servi avec 2 morceaux de pain à l'ail.",
+        description: "Pâtes tagliatelles, sauce alfredo crémeuse garnie de crevettes (6). Servi avec 2 morceaux de pain à l'ail",
         price: "26.95",
         seafood: true,
         allergens: ["/icons/seafood_icon.png", "/icons/dairy_icon.png", "/icons/wheat_icon.png"],
@@ -241,7 +241,7 @@ const translations = {
       {
         id: "penne-arabiata-chicken",
         name: "Penne Sauce Arabiata avec Poulet Grillé",
-        description: "Pâtes penne avec sauce tomate épicée arabiata, tomates séchées, fromage parmesan et roquette avec poulet grillé sur le dessus servi avec 2 morceaux de pain à l'ail.",
+        description: "Pâtes penne avec sauce tomate épicée arabiata, tomates séchées, fromage parmesan et roquette avec poulet grillé sur le dessus servi avec 2 morceaux de pain à l'ail",
         price: "23.95",
         spicy: true,
         allergens: ["/icons/dairy_icon.png", "/icons/wheat_icon.png"],
@@ -251,7 +251,7 @@ const translations = {
       {
         id: "pesto-cavatappi",
         name: "Pesto Cavatappi",
-        description: "Pâtes cavatappi mélangées avec sauce pesto, concombre, poivrons, œufs durs, garnies de flocons de piment et noix grillées.",
+        description: "Pâtes cavatappi mélangées avec sauce pesto, concombre, poivrons, œufs durs, garnies de flocons de piment et noix grillées",
         price: "19.95",
         fresh: true,
         allergens: ["/icons/nuts_icon.png", "/icons/dairy_icon.png", "/icons/wheat_icon.png", "/icons/egg_icon.png"],
@@ -266,7 +266,7 @@ const translations = {
   },
   es: {
     title: "Pasta Eggstraordinaria",
-    subtitle: "Platos de pasta clásicos con un toque adicional. ¡Tienes que probarlos para creerlos!",
+    subtitle: "Platos de pasta clásicos con un toque adicional. ¡Tienes que probarlos para creerlos",
     back: "Volver",
     badges: {
       signature: "Signature",
@@ -291,7 +291,7 @@ const translations = {
       {
         id: "fradiavolo",
         name: "Fradiavolo",
-        description: "Camarones salteados en aceite de oliva extra virgen mezclados con tagliatelle y revueltos en nuestra salsa de tomate San Marzano.",
+        description: "Camarones salteados en aceite de oliva extra virgen mezclados con tagliatelle y revueltos en nuestra salsa de tomate San Marzano",
         price: "24.95",
         spicy: true,
         allergens: ["/icons/seafood_icon.png", "/icons/wheat_icon.png"],
@@ -301,7 +301,7 @@ const translations = {
       {
         id: "fiorentina",
         name: "Fiorentina",
-        description: "Espinacas, tomates secos, ajo, vino blanco y queso Feta con pasta tagliatelle revuelta en nuestra salsa de tomate San Marzano. Pasta para amantes del queso.",
+        description: "Espinacas, tomates secos, ajo, vino blanco y queso Feta con pasta tagliatelle revuelta en nuestra salsa de tomate San Marzano. Pasta para amantes del queso",
         price: "21.95",
         italian: true,
         allergens: ["/icons/dairy_icon.png", "/icons/wheat_icon.png"],
@@ -311,7 +311,7 @@ const translations = {
       {
         id: "mac-and-cheese",
         name: "Mac and Cheese",
-        description: "Un simple giro a un viejo favorito, pasta cavatappi revuelta en una salsa cremosa de queso.",
+        description: "Un simple giro a un viejo favorito, pasta cavatappi revuelta en una salsa cremosa de queso",
         price: "18.95",
         comfort: true,
         allergens: ["/icons/dairy_icon.png", "/icons/wheat_icon.png"],
@@ -321,7 +321,7 @@ const translations = {
       {
         id: "bacon-mac-and-cheese",
         name: "Bacon Mac and Cheese",
-        description: "Un simple giro a un viejo favorito, pasta cavatappi revuelta en una salsa cremosa de queso con tocino crujiente picado y cebollas caramelizadas.",
+        description: "Un simple giro a un viejo favorito, pasta cavatappi revuelta en una salsa cremosa de queso con tocino crujiente picado y cebollas caramelizadas",
         price: "20.95",
         indulgent: true,
         allergens: ["/icons/dairy_icon.png", "/icons/wheat_icon.png"],
@@ -331,7 +331,7 @@ const translations = {
       {
         id: "lobster-mac-and-cheese",
         name: "Lobster Mac and Cheese",
-        description: "Uno de nuestros platos signature, pasta cavatappi revuelta en una salsa cremosa de queso con tomate en cubitos y generosos trozos de carne de langosta suculenta.",
+        description: "Uno de nuestros platos signature, pasta cavatappi revuelta en una salsa cremosa de queso con tomate en cubitos y generosos trozos de carne de langosta suculenta",
         price: "30.95",
         signature: true,
         allergens: ["/icons/seafood_icon.png", "/icons/dairy_icon.png", "/icons/wheat_icon.png"],
@@ -341,7 +341,7 @@ const translations = {
       {
         id: "mac-and-cheese-smoked-meat",
         name: "Mac and Cheese con Carne Ahumada",
-        description: "Viejo favorito, pasta cavatappi revuelta en una salsa cremosa y gratín de 3 quesos cubierto con carne ahumada picada servido con 2 piezas de pan de ajo.",
+        description: "Viejo favorito, pasta cavatappi revuelta en una salsa cremosa y gratín de 3 quesos cubierto con carne ahumada picada servido con 2 piezas de pan de ajo",
         price: "22.95",
         hearty: true,
         allergens: ["/icons/dairy_icon.png", "/icons/wheat_icon.png"],
@@ -351,7 +351,7 @@ const translations = {
       {
         id: "creamy-garlic-pasta-chicken",
         name: "Pasta Cremosa de Ajo con Pollo",
-        description: "Pasta tagliatelle, salsa alfredo cremosa cubierta con pollo a la parrilla. Servida con 2 piezas de pan de ajo.",
+        description: "Pasta tagliatelle, salsa alfredo cremosa cubierta con pollo a la parrilla. Servida con 2 piezas de pan de ajo",
         price: "23.95",
         creamy: true,
         allergens: ["/icons/dairy_icon.png", "/icons/wheat_icon.png"],
@@ -361,7 +361,7 @@ const translations = {
       {
         id: "creamy-garlic-pasta-shrimps",
         name: "Pasta Cremosa de Ajo con Camarones",
-        description: "Pasta tagliatelle, salsa alfredo cremosa cubierta con camarones (6). Servida con 2 piezas de pan de ajo.",
+        description: "Pasta tagliatelle, salsa alfredo cremosa cubierta con camarones (6). Servida con 2 piezas de pan de ajo",
         price: "26.95",
         seafood: true,
         allergens: ["/icons/seafood_icon.png", "/icons/dairy_icon.png", "/icons/wheat_icon.png"],
@@ -371,7 +371,7 @@ const translations = {
       {
         id: "penne-arabiata-chicken",
         name: "Penne Salsa Arabiata con Pollo a la Parrilla",
-        description: "Pasta penne con salsa de tomate picante arabiata, tomates secos, queso parmesano y rúcula con pollo a la parrilla encima servido con 2 piezas de pan de ajo.",
+        description: "Pasta penne con salsa de tomate picante arabiata, tomates secos, queso parmesano y rúcula con pollo a la parrilla encima servido con 2 piezas de pan de ajo",
         price: "23.95",
         spicy: true,
         allergens: ["/icons/dairy_icon.png", "/icons/wheat_icon.png"],
@@ -381,7 +381,7 @@ const translations = {
       {
         id: "pesto-cavatappi",
         name: "Pesto Cavatappi",
-        description: "Pasta cavatappi mezclada con salsa pesto, pepino, pimientos, huevos hervidos, cubierta con hojuelas de chile y nueces tostadas.",
+        description: "Pasta cavatappi mezclada con salsa pesto, pepino, pimientos, huevos hervidos, cubierta con hojuelas de chile y nueces tostadas",
         price: "19.95",
         fresh: true,
         allergens: ["/icons/nuts_icon.png", "/icons/dairy_icon.png", "/icons/wheat_icon.png", "/icons/egg_icon.png"],
@@ -396,7 +396,7 @@ const translations = {
   },
   cn: {
     title: "非凡意面",
-    subtitle: "经典意面菜肴加上额外的创意。你必须尝试才能相信它们！",
+    subtitle: "经典意面菜肴加上额外的创意。你必须尝试才能相信它们",
     back: "返回",
     badges: {
       signature: "招牌",
@@ -421,7 +421,7 @@ const translations = {
       {
         id: "fradiavolo",
         name: "魔鬼虾意面",
-        description: "虾仁用特级初榨橄榄油炒制，配宽面条，拌入我们的圣马扎诺番茄酱。",
+        description: "虾仁用特级初榨橄榄油炒制，配宽面条，拌入我们的圣马扎诺番茄酱",
         price: "24.95",
         spicy: true,
         allergens: ["/icons/seafood_icon.png", "/icons/wheat_icon.png"],
@@ -431,7 +431,7 @@ const translations = {
       {
         id: "fiorentina",
         name: "佛罗伦萨意面",
-        description: "菠菜、晒干番茄、大蒜、白酒和羊奶酪配宽面条，拌入我们的圣马扎诺番茄酱。奶酪爱好者的意面。",
+        description: "菠菜、晒干番茄、大蒜、白酒和羊奶酪配宽面条，拌入我们的圣马扎诺番茄酱。奶酪爱好者的意面",
         price: "21.95",
         italian: true,
         allergens: ["/icons/dairy_icon.png", "/icons/wheat_icon.png"],
@@ -441,7 +441,7 @@ const translations = {
       {
         id: "mac-and-cheese",
         name: "芝士通心粉",
-        description: "经典老菜的简单变化，螺旋面配奶香芝士酱。",
+        description: "经典老菜的简单变化，螺旋面配奶香芝士酱",
         price: "18.95",
         comfort: true,
         allergens: ["/icons/dairy_icon.png", "/icons/wheat_icon.png"],
@@ -451,7 +451,7 @@ const translations = {
       {
         id: "bacon-mac-and-cheese",
         name: "培根芝士通心粉",
-        description: "经典老菜的简单变化，螺旋面配奶香芝士酱，加切碎的酥脆培根和焦糖洋葱。",
+        description: "经典老菜的简单变化，螺旋面配奶香芝士酱，加切碎的酥脆培根和焦糖洋葱",
         price: "20.95",
         indulgent: true,
         allergens: ["/icons/dairy_icon.png", "/icons/wheat_icon.png"],
@@ -461,7 +461,7 @@ const translations = {
       {
         id: "lobster-mac-and-cheese",
         name: "龙虾芝士通心粉",
-        description: "我们的招牌菜之一，螺旋面配奶香芝士酱，加切丁番茄和大块鲜美龙虾肉。",
+        description: "我们的招牌菜之一，螺旋面配奶香芝士酱，加切丁番茄和大块鲜美龙虾肉",
         price: "30.95",
         signature: true,
         allergens: ["/icons/seafood_icon.png", "/icons/dairy_icon.png", "/icons/wheat_icon.png"],
@@ -471,7 +471,7 @@ const translations = {
       {
         id: "mac-and-cheese-smoked-meat",
         name: "烟熏肉芝士通心粉",
-        description: "经典老菜，螺旋面配奶香酱汁和3种奶酪焗烤，配切碎烟熏肉，配2片蒜蓉面包。",
+        description: "经典老菜，螺旋面配奶香酱汁和3种奶酪焗烤，配切碎烟熏肉，配2片蒜蓉面包",
         price: "22.95",
         hearty: true,
         allergens: ["/icons/dairy_icon.png", "/icons/wheat_icon.png"],
@@ -481,7 +481,7 @@ const translations = {
       {
         id: "creamy-garlic-pasta-chicken",
         name: "奶香蒜蓉鸡肉意面",
-        description: "宽面条配奶香阿尔弗雷多酱，配烤鸡肉。配2片蒜蓉面包。",
+        description: "宽面条配奶香阿尔弗雷多酱，配烤鸡肉。配2片蒜蓉面包",
         price: "23.95",
         creamy: true,
         allergens: ["/icons/dairy_icon.png", "/icons/wheat_icon.png"],
@@ -491,7 +491,7 @@ const translations = {
       {
         id: "creamy-garlic-pasta-shrimps",
         name: "奶香蒜蓉虾仁意面",
-        description: "宽面条配奶香阿尔弗雷多酱，配虾仁(6只)。配2片蒜蓉面包。",
+        description: "宽面条配奶香阿尔弗雷多酱，配虾仁(6只)。配2片蒜蓉面包",
         price: "26.95",
         seafood: true,
         allergens: ["/icons/seafood_icon.png", "/icons/dairy_icon.png", "/icons/wheat_icon.png"],
@@ -501,7 +501,7 @@ const translations = {
       {
         id: "penne-arabiata-chicken",
         name: "阿拉比亚塔烤鸡通心粉",
-        description: "通心粉配番茄辣味阿拉比亚塔酱、晒干番茄、帕尔马干酪和芝麻菜，配烤鸡肉，配2片蒜蓉面包。",
+        description: "通心粉配番茄辣味阿拉比亚塔酱、晒干番茄、帕尔马干酪和芝麻菜，配烤鸡肉，配2片蒜蓉面包",
         price: "23.95",
         spicy: true,
         allergens: ["/icons/dairy_icon.png", "/icons/wheat_icon.png"],
@@ -511,7 +511,7 @@ const translations = {
       {
         id: "pesto-cavatappi",
         name: "青酱螺旋面",
-        description: "螺旋面配青酱、黄瓜、彩椒、水煮蛋，配辣椒片和烤核桃。",
+        description: "螺旋面配青酱、黄瓜、彩椒、水煮蛋，配辣椒片和烤核桃",
         price: "19.95",
         fresh: true,
         allergens: ["/icons/nuts_icon.png", "/icons/dairy_icon.png", "/icons/wheat_icon.png", "/icons/egg_icon.png"],
@@ -632,9 +632,9 @@ export default function EggstraordinaryPastaPage() {
         </div>
       </header>
 
-      {/* Main Content - Full Width Layout for Tablet */}
+      {/* Main Content - Tablet Responsive Layout */}
       <main className="px-6 pb-20 pt-8 relative z-10 w-full">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-8 w-full">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 w-full">
           {t.items.map((item) => {
             const badge = getBadgeInfo(item, t.badges);
             return (
@@ -666,22 +666,21 @@ export default function EggstraordinaryPastaPage() {
                     {item.name}
                   </h3>
                   
-                  <p className="text-sm text-red-800 leading-relaxed line-clamp-3 font-medium">
+                  {/* Full text without truncation */}
+                  <p className="text-sm text-red-800 leading-relaxed font-medium">
                     {item.description}
                   </p>
-                  
-                  {/* Allergens and Spiciness */}
-                  <div className="flex gap-3 items-center justify-between">
-                    <div className="flex gap-2 items-center">
-                      {renderAllergens(item.allergens)}
-                    </div>
-                    {renderSpicinessIcons(item.spiciness)}
-                  </div>
                   
                   {/* Price Section */}
                   <div className="pt-4 border-t border-red-200/60 flex justify-between items-center">
                     <span className="text-xl font-bold text-red-900">${item.price}</span>
                     <span className="text-sm text-red-700 font-semibold">CAD</span>
+                  </div>
+                  
+                  {/* Allergens and Spiciness - moved to bottom right */}
+                  <div className="flex gap-3 items-center justify-end">
+                    {renderSpicinessIcons(item.spiciness)}
+                    {renderAllergens(item.allergens)}
                   </div>
                 </div>
               </article>
@@ -713,7 +712,7 @@ export default function EggstraordinaryPastaPage() {
           {/* Final Decorative Line */}
           <div className="flex items-center justify-center mt-6">
             <div className="h-px bg-gradient-to-r from-transparent via-red-400 to-transparent flex-1 max-w-24"></div>
-            <span className="text-2xl mx-3">🌟</span>
+            <span className="text-2xl mx-3">🍝</span>
             <div className="h-px bg-gradient-to-r from-transparent via-green-400 to-transparent flex-1 max-w-24"></div>
           </div>
         </div>

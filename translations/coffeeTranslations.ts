@@ -1,7 +1,3 @@
-from pathlib import Path
-
-# Conteúdo do arquivo coffeeTranslations.ts
-coffee_translations_ts = """
 const coffeeTranslations = {
   en: {
     espressoItems: [
@@ -150,10 +146,3 @@ const coffeeTranslations = {
 };
 
 export default coffeeTranslations;
-"""
-
-# Salvar o conteúdo em um arquivo .ts
-output_path = Path("/mnt/data/coffeeTranslations.ts")
-output_path.write_text(coffee_translations_ts.strip(), encoding="utf-8")
-
-output_path.name
