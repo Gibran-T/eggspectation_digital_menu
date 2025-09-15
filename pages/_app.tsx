@@ -1,14 +1,12 @@
 // pages/_app.tsx
-import '../styles/globals.css';
-import type { AppProps } from 'next/app';
-import { LanguageProvider } from '../context/LanguageContext';
+import type { AppProps } from "next/app";
+import "../styles/globals.css";
+import { LanguageProvider } from "../context/LanguageContext"; // use o MESMO nome/caso do arquivo
 
-function MyApp({ Component, pageProps }: AppProps) {
+export default function MyApp({ Component, pageProps }: AppProps) {
   return (
     <LanguageProvider>
       <Component {...pageProps} />
     </LanguageProvider>
   );
 }
-
-export default MyApp;
