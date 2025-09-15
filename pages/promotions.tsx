@@ -28,11 +28,15 @@ type ApiPromo = {
 
 type Props = { authorized: boolean };
 
-/** Troca de idioma preservando TODOS os query params (ex.: k=EGG2025) */
+/** Base URL usada para OG/Twitter (SSR e Vercel) */
+const BASE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+
+/** Switch de idioma – preserva TODOS os query params (ex.: k=EGG2025) */
 function LangSwitch({ current }: { current: Lang }) {
   const router = useRouter();
   const q = router.query;
-
   return (
     <div className="mt-4 flex items-center gap-2">
       {LANGS.map((l) => (
@@ -60,22 +64,12 @@ const PromotionsPage: NextPage<Props> = ({ authorized }) => {
   const queryLang = String(router.query.lang || "").toLowerCase();
   const lang: Lang = (LANGS.includes(queryLang as Lang) ? queryLang : "en") as Lang;
 
-  // URL base para OG/Twitter cards (funciona no server e no client)
-  const baseUrl =
-    typeof window !== "undefined"
-      ? window.location.origin
-      : (process.env.NEXT_PUBLIC_BASE_URL?.replace(/\/$/, "") ||
-         (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000"));
-
-  const canonicalUrl = `${baseUrl}/promotions`;
-
   const [promos, setPromos] = useState<ApiPromo[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [filterTag, setFilterTag] = useState<string>("__all__");
   const [search, setSearch] = useState<string>("");
   const [sort, setSort] = useState<"featured" | "price_asc" | "price_desc">("featured");
 
-  // Formatação de moeda seguindo o idioma
   const currency = useMemo(
     () =>
       new Intl.NumberFormat(lang === "fr" ? "fr-CA" : "en-CA", {
@@ -141,10 +135,10 @@ const PromotionsPage: NextPage<Props> = ({ authorized }) => {
       if (sort === "featured") {
         const af = a.featured ? 1 : 0;
         const bf = b.featured ? 1 : 0;
-        if (bf !== af) return bf - af; // featured primeiro
+        if (bf !== af) return bf - af;
         const ap = a.priority || 0;
         const bp = b.priority || 0;
-        return bp - ap; // prioridade desc
+        return bp - ap;
       }
       if (sort === "price_asc") return Number(a.price) - Number(b.price);
       if (sort === "price_desc") return Number(b.price) - Number(a.price);
@@ -154,45 +148,28 @@ const PromotionsPage: NextPage<Props> = ({ authorized }) => {
     return list;
   }, [promos, filterTag, search, sort, lang]);
 
+  const title = lang === "fr" ? "Promotions de saison" : "Seasonal Promotions";
+  const description =
+    lang === "fr" ? "Offres en vedette chez eggspectation." : "Featured offers at eggspectation.";
+
   return (
     <>
       <Head>
         <title>Promotions</title>
         <meta name="robots" content="index,follow" />
-        <link rel="canonical" href={canonicalUrl} />
 
         {/* Open Graph */}
         <meta property="og:type" content="website" />
-        <meta
-          property="og:title"
-          content={lang === "fr" ? "Promotions de saison" : "Seasonal Promotions"}
-        />
-        <meta
-          property="og:description"
-          content={
-            lang === "fr"
-              ? "Offres en vedette chez eggspectation."
-              : "Featured offers at eggspectation."
-          }
-        />
-        <meta property="og:image" content={`${baseUrl}/hero/promos.jpg`} />
-        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:image" content={`${BASE_URL}/hero/promos.jpg`} />
+        <meta property="og:url" content={`${BASE_URL}/promotions`} />
 
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta
-          name="twitter:title"
-          content={lang === "fr" ? "Promotions de saison" : "Seasonal Promotions"}
-        />
-        <meta
-          name="twitter:description"
-          content={
-            lang === "fr"
-              ? "Offres en vedette chez eggspectation."
-              : "Featured offers at eggspectation."
-          }
-        />
-        <meta name="twitter:image" content={`${baseUrl}/hero/promos.jpg`} />
+        <meta name="twitter:title" content={title} />
+        <meta name="twitter:description" content={description} />
+        <meta name="twitter:image" content={`${BASE_URL}/hero/promos.jpg`} />
       </Head>
 
       <div className="mx-auto max-w-7xl px-4 py-6 md:py-8">
@@ -201,22 +178,21 @@ const PromotionsPage: NextPage<Props> = ({ authorized }) => {
           <div className="relative h-[240px] sm:h-[300px] lg:h-[360px]">
             <Image
               src="/hero/promos.jpg"
-              alt={lang === "fr" ? "Façade eggspectation à l’automne à Montréal" : "eggspectation facade in autumn in Montreal"}
+              alt="eggspectation facade in autumn in Montreal"
               fill
               priority
               className="object-cover"
-              style={{ objectPosition: "left center" }} // foca no letreiro
+              style={{ objectPosition: "left center" }}
               sizes="100vw"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent" />
             <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-10">
               <div className="flex items-center justify-between gap-3">
                 <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-white">
-                  {lang === "fr" ? "Promotions de saison" : "Seasonal Promotions"}
+                  {title}
                 </h1>
                 <ThemeToggle />
               </div>
-              {/* Subtítulo removido como solicitado */}
               <LangSwitch current={lang} />
             </div>
           </div>
@@ -348,10 +324,8 @@ const PromotionsPage: NextPage<Props> = ({ authorized }) => {
                         {featuredLabel}
                       </div>
                     )}
-                    <div
-                      className="absolute bottom-2 right-2 rounded-full bg-white/95 px-3 py-1 text-sm font-semibold shadow
-                                  dark:bg-black/60 dark:text-white"
-                    >
+                    <div className="absolute bottom-2 right-2 rounded-full bg-white/95 px-3 py-1 text-sm font-semibold shadow
+                                    dark:bg-black/60 dark:text-white">
                       {currency.format(Number(p.price || 0))}
                     </div>
                   </div>
