@@ -1,117 +1,150 @@
 // lib/promotions.ts
-import type { Promotion } from "../type/promotions";
 
+// 1) Tipo local — evita problemas de path/case no Vercel
+export type Promotion = {
+  id: string;
+  name: string;
+  description?: string;
+  price: number;
+  image: string;
+  tags?: string[];
+  featured?: boolean;
+  translations?: {
+    en?: { name?: string; description?: string };
+    fr?: { name?: string; description?: string };
+  };
+  priority?: number;
+  valid_until?: string;
+};
+
+// 2) Config via ENV
+const CSV_URL = process.env.SHEET_PUBLISHED_CSV_URL || ""; // publicado como CSV
 const CACHE_SECONDS = Number(process.env.PROMOTIONS_CACHE_SECONDS ?? 300);
-const DEFAULT_LANG = (process.env.PROMOTIONS_DEFAULT_LANG ?? "en").toLowerCase();
 
-let memoryCache: { data: Promotion[]; fetchedAt: number } | null = null;
+// 3) Cache simples em memória entre requests (em serverless, por invocação)
+let cache: { at: number; data: Promotion[] } | null = null;
 
-// ---- helpers ---------------------------------------------------------------
-function toBool(v: unknown, def = false): boolean {
-  const s = String(v ?? "").trim().toLowerCase();
-  if (["true","yes","1","y"].includes(s)) return true;
-  if (["false","no","0","n"].includes(s)) return false;
-  return def;
-}
-function parseTags(raw?: string): string[] | undefined {
-  if (!raw) return;
-  const arr = raw.split(/[;,]/).map(t => t.trim()).filter(Boolean);
-  return arr.length ? arr : undefined;
-}
-function num(v: unknown, def = 0): number {
-  const n = Number(String(v ?? "").replace(",", "."));
-  return Number.isFinite(n) ? n : def;
-}
-function pickLang(rec: any, keyEn: string, keyFr?: string, lang = DEFAULT_LANG) {
-  const v = (lang !== "en" && keyFr) ? rec[keyFr] : rec[keyEn];
-  return String((v ?? rec[keyEn] ?? "")).trim();
-}
-// CSV: split por vírgulas respeitando trechos entre aspas
-function parseCsvLine(line: string): string[] {
-  return line
-    .split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/)
-    .map(c => c.replace(/^"|"$/g, "").replace(/""/g, '"'));
-}
+// 4) CSV parser robusto (respeita campos entre aspas e vírgulas internas)
+function parseCSV(text: string): string[][] {
+  const rows: string[][] = [];
+  let cur = "";
+  let row: string[] = [];
+  let inQuotes = false;
 
-// ---- parsing ---------------------------------------------------------------
-function parseRow(row: string[], headers: string[], lang = DEFAULT_LANG): Promotion | null {
-  const idx = (h: string) => headers.indexOf(h);                    // headers já estão normalizados
-  const get = (h: string) => (idx(h) >= 0 ? row[idx(h)] ?? "" : "");
-
-  const hasEn = idx("name_en") >= 0 || idx("description_en") >= 0;
-
-  const id = get("id") || undefined;
-  const name = hasEn
-    ? pickLang({ name_en: get("name_en"), name_fr: get("name_fr") }, "name_en", "name_fr", lang)
-    : (get("name") || "");
-  if (!name) return null;
-
-  const description = hasEn
-    ? pickLang(
-        { description_en: get("description_en"), description_fr: get("description_fr") },
-        "description_en", "description_fr", lang
-      ) || undefined
-    : (get("description") || undefined);
-
-  const price = num(get("price"));
-  const image = String(get("image") || "").trim();
-  const tags = parseTags(String(get("tags") || ""));
-  const featured = toBool(get("featured"));
-
-  const valid_from = get("valid_from") || undefined;
-  const valid_until = get("valid_until") || undefined;
-  const visible = idx("visible") >= 0 ? toBool(get("visible"), true) : true;
-  const priority = idx("priority") >= 0 ? num(get("priority"), 0) : 0;
-
-  const translations = hasEn ? {
-    en: { name: get("name_en") || name, description: get("description_en") || description },
-    fr: { name: get("name_fr") || name, description: get("description_fr") || description },
-  } : undefined;
-
-  return { id, name, description, price, image, tags, featured, translations, valid_from, valid_until, visible, priority };
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (c === '"') {
+      if (inQuotes && text[i + 1] === '"') {
+        cur += '"';
+        i++;
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if (c === "," && !inQuotes) {
+      row.push(cur);
+      cur = "";
+    } else if ((c === "\n" || c === "\r") && !inQuotes) {
+      if (cur.length || row.length) {
+        row.push(cur);
+        rows.push(row);
+        row = [];
+        cur = "";
+      }
+      // se \r\n, pular um
+      if (c === "\r" && text[i + 1] === "\n") i++;
+    } else {
+      cur += c;
+    }
+  }
+  if (cur.length || row.length) {
+    row.push(cur);
+    rows.push(row);
+  }
+  return rows;
 }
 
-// ---- fetch CSV -------------------------------------------------------------
-async function fetchViaCsv(): Promise<Promotion[] | null> {
-  const csvUrl = process.env.SHEET_PUBLISHED_CSV_URL;
-  if (!csvUrl) return null;
+function idx(header: string[], name: string) {
+  return header.findIndex((h) => h.trim() === name);
+}
 
-  const res = await fetch(csvUrl, { cache: "no-store" });
-  if (!res.ok) return null;
+// 5) Normalização de boolean e listas
+function toBool(v: string | undefined) {
+  return ["1", "true", "yes", "y"].includes(String(v || "").trim().toLowerCase());
+}
+
+function toTags(v: string | undefined) {
+  return String(v || "")
+    .split("|")
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
+// 6) Fetch + transformação
+export async function fetchPromotions(): Promise<Promotion[]> {
+  if (!CSV_URL) return [];
+
+  // cache
+  const now = Date.now();
+  if (cache && now - cache.at < CACHE_SECONDS * 1000) return cache.data;
+
+  const res = await fetch(CSV_URL, {
+    // Next 13/14/15 — ajuda no cache em edge/fc
+    next: { revalidate: CACHE_SECONDS },
+  });
+  if (!res.ok) throw new Error(`CSV HTTP ${res.status}`);
 
   const text = await res.text();
-  const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
-  if (!lines.length) return [];
+  const rows = parseCSV(text);
+  if (rows.length < 2) return [];
 
-  // normaliza cabeçalhos: remove BOM, trim, minúsculo
-  const headers = parseCsvLine(lines[0])
-    .map(h => h.replace(/^\uFEFF/, "").trim().toLowerCase());
+  const [header, ...lines] = rows;
 
-  const rows = lines.slice(1).map(parseCsvLine);
-  const parsed = rows.map(r => parseRow(r, headers)).filter(Boolean) as Promotion[];
-  return parsed;
-}
+  const i_id = idx(header, "id");
+  const i_name_en = idx(header, "name_en");
+  const i_name_fr = idx(header, "name_fr");
+  const i_desc_en = idx(header, "description_en");
+  const i_desc_fr = idx(header, "description_fr");
+  const i_price = idx(header, "price");
+  const i_image = idx(header, "image");
+  const i_tags = idx(header, "tags");
+  const i_featured = idx(header, "featured");
+  const i_priority = idx(header, "priority");
+  const i_valid_until = idx(header, "valid_until");
 
-// ---- business rules --------------------------------------------------------
-function withinValidity(p: Promotion): boolean {
-  const now = new Date();
-  const fromOk = p.valid_from ? new Date(p.valid_from) <= now : true;
-  const untilOk = p.valid_until ? now <= new Date(p.valid_until) : true;
-  return fromOk && untilOk;
-}
+  const data: Promotion[] = lines
+    .filter((r) => r.some((c) => c.trim().length)) // ignora linhas vazias
+    .map((r) => {
+      const price = i_price >= 0 ? Number(r[i_price] || 0) : 0;
+      return {
+        id: i_id >= 0 ? r[i_id] : "",
+        name: (i_name_en >= 0 ? r[i_name_en] : "") || (i_name_fr >= 0 ? r[i_name_fr] : ""),
+        description:
+          (i_desc_en >= 0 ? r[i_desc_en] : "") || (i_desc_fr >= 0 ? r[i_desc_fr] : ""),
+        price: isFinite(price) ? price : 0,
+        image: i_image >= 0 ? r[i_image] || "" : "",
+        tags: toTags(i_tags >= 0 ? r[i_tags] : ""),
+        featured: toBool(i_featured >= 0 ? r[i_featured] : ""),
+        translations: {
+          en:
+            i_name_en >= 0 || i_desc_en >= 0
+              ? {
+                  name: i_name_en >= 0 ? r[i_name_en] || undefined : undefined,
+                  description: i_desc_en >= 0 ? r[i_desc_en] || undefined : undefined,
+                }
+              : undefined,
+          fr:
+            i_name_fr >= 0 || i_desc_fr >= 0
+              ? {
+                  name: i_name_fr >= 0 ? r[i_name_fr] || undefined : undefined,
+                  description: i_desc_fr >= 0 ? r[i_desc_fr] || undefined : undefined,
+                }
+              : undefined,
+        },
+        priority: i_priority >= 0 ? Number(r[i_priority] || 0) : 0,
+        valid_until: i_valid_until >= 0 ? r[i_valid_until] || undefined : undefined,
+      };
+    });
 
-// ---- public API ------------------------------------------------------------
-export async function getPromotions(): Promise<Promotion[]> {
-  const now = Date.now();
-  if (memoryCache && now - memoryCache.fetchedAt < CACHE_SECONDS * 1000) {
-    return memoryCache.data;
-  }
-  const data = await fetchViaCsv();
-  const safe = (data ?? [])
-    .filter(p => !!p?.name && p.visible !== false)
-    .filter(withinValidity)
-    .sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
-
-  memoryCache = { data: safe, fetchedAt: now };
-  return safe;
+  cache = { at: now, data };
+  return data;
 }
