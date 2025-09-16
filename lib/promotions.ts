@@ -1,5 +1,5 @@
 // lib/promotions.ts
-import type { Promotion } from "../types/promotions";
+import type { Promotion } from "../type/promotions";
 
 const CACHE_SECONDS = Number(process.env.PROMOTIONS_CACHE_SECONDS ?? 300);
 const DEFAULT_LANG = (process.env.PROMOTIONS_DEFAULT_LANG ?? "en").toLowerCase();

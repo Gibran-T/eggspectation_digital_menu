@@ -28,11 +28,6 @@ type ApiPromo = {
 
 type Props = { authorized: boolean };
 
-/** Base URL usada para OG/Twitter (SSR e Vercel) */
-const BASE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
-  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
-
 /** Switch de idioma – preserva TODOS os query params (ex.: k=EGG2025) */
 function LangSwitch({ current }: { current: Lang }) {
   const router = useRouter();
@@ -63,6 +58,13 @@ const PromotionsPage: NextPage<Props> = ({ authorized }) => {
   const router = useRouter();
   const queryLang = String(router.query.lang || "").toLowerCase();
   const lang: Lang = (LANGS.includes(queryLang as Lang) ? queryLang : "en") as Lang;
+
+  // baseUrl para OG/Twitter (SSR no Vercel e CSR no browser)
+  const baseUrl =
+    typeof window !== "undefined"
+      ? window.location.origin
+      : (process.env.NEXT_PUBLIC_BASE_URL?.replace(/\/$/, "") ||
+          (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000"));
 
   const [promos, setPromos] = useState<ApiPromo[] | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -135,10 +137,10 @@ const PromotionsPage: NextPage<Props> = ({ authorized }) => {
       if (sort === "featured") {
         const af = a.featured ? 1 : 0;
         const bf = b.featured ? 1 : 0;
-        if (bf !== af) return bf - af;
+        if (bf !== af) return bf - af; // primeiro os destacados
         const ap = a.priority || 0;
         const bp = b.priority || 0;
-        return bp - ap;
+        return bp - ap; // prioridade desc
       }
       if (sort === "price_asc") return Number(a.price) - Number(b.price);
       if (sort === "price_desc") return Number(b.price) - Number(a.price);
@@ -162,14 +164,14 @@ const PromotionsPage: NextPage<Props> = ({ authorized }) => {
         <meta property="og:type" content="website" />
         <meta property="og:title" content={title} />
         <meta property="og:description" content={description} />
-        <meta property="og:image" content={`${BASE_URL}/hero/promos.jpg`} />
-        <meta property="og:url" content={`${BASE_URL}/promotions`} />
+        <meta property="og:image" content={`${baseUrl}/hero/promos.jpg`} />
+        <meta property="og:url" content={`${baseUrl}/promotions`} />
 
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={title} />
         <meta name="twitter:description" content={description} />
-        <meta name="twitter:image" content={`${BASE_URL}/hero/promos.jpg`} />
+        <meta name="twitter:image" content={`${baseUrl}/hero/promos.jpg`} />
       </Head>
 
       <div className="mx-auto max-w-7xl px-4 py-6 md:py-8">
