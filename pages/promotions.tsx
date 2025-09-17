@@ -7,9 +7,11 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/router";
 import ThemeToggle from "../components/ThemeToggle";
 
+// === Idiomas suportados via ?lang=xx ===
 const LANGS = ["en", "fr"] as const;
 type Lang = (typeof LANGS)[number];
 
+// === Tipo interno usado pela página (depois da normalização) ===
 type ApiPromo = {
   id: string;
   name: string;
@@ -28,7 +30,46 @@ type ApiPromo = {
 
 type Props = { authorized: boolean };
 
-/** Switch de idioma – preserva TODOS os query params (ex.: k=EGG2025) */
+/* ------------------ Helpers de normalização ------------------ */
+
+// converte "TRUE"/"FALSE" ou boolean => boolean
+const toBool = (v: any) =>
+  typeof v === "boolean" ? v : String(v ?? "").trim().toLowerCase() === "true";
+
+// "A;B,C" => ["A","B","C"]
+const splitTags = (t: any): string[] =>
+  Array.isArray(t)
+    ? t
+    : String(t ?? "")
+        .split(/[;,]/)
+        .map((s) => s.trim())
+        .filter(Boolean);
+
+// cria um id fallback caso a linha não tenha id
+const ensureId = (r: any) => {
+  const base = String(r.id ?? r.pid ?? r.pId ?? r.code ?? r.name_en ?? r.name_fr ?? r.name ?? "").trim();
+  return base || `promo_${Math.random().toString(36).slice(2, 10)}`;
+};
+
+// mapeia “linha crua” (CSV->API) para o formato ApiPromo
+const normalizeRow = (r: any): ApiPromo => ({
+  id: ensureId(r),
+  // name/description “base” (usados na busca); cai para EN se não existir um neutro
+  name: r.name ?? r.name_en ?? r.name_fr ?? "",
+  description: r.description ?? r.description_en ?? r.description_fr ?? "",
+  price: Number(r.price ?? 0),
+  image: r.image ?? r.img ?? "",
+  tags: splitTags(r.tags),
+  featured: toBool(r.featured),
+  translations: {
+    en: { name: r.name_en, description: r.description_en },
+    fr: { name: r.name_fr, description: r.description_fr },
+  },
+  priority: Number(r.priority ?? 0),
+  valid_until: r.valid_until ?? r.validUntil ?? undefined,
+});
+
+/* ------------------ Componente: troca de idioma ------------------ */
 function LangSwitch({ current }: { current: Lang }) {
   const router = useRouter();
   const q = router.query;
@@ -54,6 +95,7 @@ function LangSwitch({ current }: { current: Lang }) {
   );
 }
 
+/* ------------------ Página ------------------ */
 const PromotionsPage: NextPage<Props> = ({ authorized }) => {
   const router = useRouter();
   const queryLang = String(router.query.lang || "").toLowerCase();
@@ -95,14 +137,18 @@ const PromotionsPage: NextPage<Props> = ({ authorized }) => {
     );
   }
 
+  // Carrega e normaliza os dados da API (aceita array puro ou { data: [...] })
   useEffect(() => {
     let alive = true;
     (async () => {
       try {
-        const res = await fetch("/api/promotions", { cache: "no-store" });
+        const buster = typeof window !== "undefined" ? Date.now() : 0;
+         const res = await fetch(`/api/promotions?bust=${buster}`, { cache: "no-store" });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const payload = await res.json();
-        if (alive) setPromos(payload?.data ?? []);
+        const raw = await res.json();
+        const arr: any[] = Array.isArray(raw) ? raw : Array.isArray(raw?.data) ? raw.data : [];
+        const mapped: ApiPromo[] = arr.map(normalizeRow);
+        if (alive) setPromos(mapped);
       } catch (e: any) {
         if (alive) setError(e?.message || "Failed to load");
       }
@@ -137,7 +183,7 @@ const PromotionsPage: NextPage<Props> = ({ authorized }) => {
       if (sort === "featured") {
         const af = a.featured ? 1 : 0;
         const bf = b.featured ? 1 : 0;
-        if (bf !== af) return bf - af; // primeiro os destacados
+        if (bf !== af) return bf - af; // destacados primeiro
         const ap = a.priority || 0;
         const bp = b.priority || 0;
         return bp - ap; // prioridade desc
@@ -371,6 +417,7 @@ const PromotionsPage: NextPage<Props> = ({ authorized }) => {
 
 export default PromotionsPage;
 
+/* ------------------ Autorização opcional por chave ------------------ */
 export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
   const serverKey = String(process.env.PROMO_KEY || "");
   const key = String(ctx.query.k || "");

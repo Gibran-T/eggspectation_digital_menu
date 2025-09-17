@@ -1,91 +1,111 @@
-export default function handler(_req, res) {
-  const data = [
-    {
-      id: "p4",
-      name: "Lobster Benedict",
-      description: "Buttery lobster on toasted English muffin with soft-poached eggs and hollandaise; served with Lyonnaise-style potatoes.",
-      price: 26,
-      image: "/images/LOBSTER_BENEDICT.jpg",
-      tags: ["Brunch", "Benedict", "Seafood"],
-      featured: true,
-      translations: {
-        en: { name: "Lobster Benedict", description: "Buttery lobster on toasted English muffin with soft-poached eggs and hollandaise; served with Lyonnaise-style potatoes." },
-        fr: { name: "Benedict au Homard", description: "Homard au beurre sur muffin anglais grillé, œufs pochés et sauce hollandaise; servi avec pommes de terre lyonnaises." }
-      },
-      valid_from: "2025-09-08",
-      valid_until: "2025-10-08",
-      visible: true,
-      priority: 100
-    },
-    {
-      id: "p5",
-      name: "Chicken ’n Waffles",
-      description: "Crispy fried chicken over a Belgian waffle with butter and warm syrup.",
-      price: 21,
-      image: "/images/CHICKEN_N_WAFFLES.jpg",
-      tags: ["Brunch", "Chicken", "Waffle"],
-      featured: true,
-      translations: {
-        en: { name: "Chicken ’n Waffles", description: "Crispy fried chicken over a Belgian waffle with butter and warm syrup." },
-        fr: { name: "Poulet et Gaufres", description: "Poulet frit croustillant sur gaufre belge, avec beurre et sirop chaud." }
-      },
-      valid_from: "2025-09-08",
-      valid_until: "2025-10-08",
-      visible: true,
-      priority: 90
-    },
-    {
-      id: "p6",
-      name: "Grand Mimosa",
-      description: "Bubbly double-pour mimosa with fresh orange juice.",
-      price: 14,
-      image: "/images/GRAND_MIMOSA.jpg",
-      tags: ["Cocktail", "Mimosa"],
-      featured: true,
-      translations: {
-        en: { name: "Grand Mimosa", description: "Bubbly double-pour mimosa with fresh orange juice." },
-        fr: { name: "Grand Mimosa", description: "Mimosa pétillant double dose au jus d’orange frais." }
-      },
-      valid_from: "2025-09-08",
-      valid_until: "2025-10-08",
-      visible: true,
-      priority: 80
-    },
-    {
-      id: "p7",
-      name: "Steak Frites",
-      description: "Grilled steak with house herb butter, crisp fries and mixed greens.",
-      price: 28,
-      image: "/images/STEAK_FRITES.jpg",
-      tags: ["Mains", "Steak"],
-      featured: false,
-      translations: {
-        en: { name: "Steak Frites", description: "Grilled steak with house herb butter, crisp fries and mixed greens." },
-        fr: { name: "Steak Frites", description: "Steak grillé avec beurre aux herbes maison, frites croustillantes et salade verte." }
-      },
-      valid_from: "2025-09-08",
-      valid_until: "2025-10-08",
-      visible: true,
-      priority: 70
-    },
-    {
-      id: "p8",
-      name: "Yolk Around the Clock",
-      description: "Signature breakfast stack with egg, bacon and cheddar on brioche; served with Lyonnaise-style potatoes.",
-      price: 18.5,
-      image: "/images/YOLK_AROUND_THE_CLOCK.jpg",
-      tags: ["Brunch", "Signature"],
-      featured: false,
-      translations: {
-        en: { name: "Yolk Around the Clock", description: "Signature breakfast stack with egg, bacon and cheddar on brioche; served with Lyonnaise-style potatoes." },
-        fr: { name: "Yolk Around the Clock", description: "Assiette signature avec œuf, bacon et cheddar sur brioche; servie avec pommes de terre lyonnaises." }
-      },
-      valid_from: "2025-09-08",
-      valid_until: "2025-10-08",
-      visible: true,
-      priority: 60
-    },
-  ];
+// pages/api/promotions.js
+import Papa from "papaparse";
 
-  res.status(200).json({ ok: true, count: data.length, data });
+let cache = { ts: 0, rows: null };
+
+// TTL em segundos (env) e ms (memória)
+const TTL_SEC = Number(process.env.PROMOTIONS_CACHE_SECONDS || 0);
+const TTL_MS = TTL_SEC * 1000;
+
+function parseBool(v) {
+  if (typeof v === "boolean") return v;
+  const s = String(v || "").trim().toLowerCase();
+  return s === "true" || s === "1" || s === "yes" || s === "y" || s === "vrai" || s === "oui";
+}
+
+function todayYYYYMMDD_Toronto() {
+  // en-CA => "YYYY-MM-DD"
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Toronto",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+}
+
+function inWindow(today, start, end) {
+  const s = (start || "").trim();
+  const e = (end || "").trim();
+  return (!s || today >= s) && (!e || today <= e);
+}
+
+export default async function handler(req, res) {
+  try {
+    const csvUrl = process.env.SHEET_PUBLISHED_CSV_URL;
+    if (!csvUrl) {
+      res.setHeader("Cache-Control", "no-store");
+      return res.status(500).json({ error: "Missing SHEET_PUBLISHED_CSV_URL" });
+    }
+
+    // ?bust=1 -> ignora CDN e pode ignorar cache em memória (útil durante testes)
+    const bust = req.query.bust === "1" || req.query.bust === "true";
+
+    const includeAll = req.query.all === "1" || req.query.all === "true";
+    if (includeAll && process.env.PROMO_KEY && req.query.key !== process.env.PROMO_KEY) {
+      res.setHeader("Cache-Control", "no-store");
+      return res.status(403).json({ error: "Forbidden" });
+    }
+
+    const now = Date.now();
+    let rows;
+
+    // Cache em memória (a menos que bust)
+    if (!bust && TTL_MS && cache.rows && now - cache.ts < TTL_MS) {
+      rows = cache.rows;
+    } else {
+      // Sempre buscar o CSV sem cache local
+      const resp = await fetch(csvUrl, { cache: "no-store" });
+      if (!resp.ok) throw new Error(`Fetch CSV failed: ${resp.status}`);
+      const text = await resp.text();
+      const parsed = Papa.parse(text, { header: true, skipEmptyLines: true });
+      rows = parsed.data; // array de objetos com cabeçalhos da planilha
+
+      // Atualiza cache em memória (opcionalmente até quando bust)
+      cache = { ts: now, rows };
+    }
+
+    // Mapear e normalizar campos
+    const items = rows.map((r) => ({
+      id: (r.id || "").trim(),
+      name_en: r.name_en || "",
+      name_fr: r.name_fr || "",
+      description_en: r.description_en || "",
+      description_fr: r.description_fr || "",
+      price: Number(r.price || 0),
+      image: r.image || "",
+      tags: r.tags || "",
+      featured: parseBool(r.featured),
+      valid_from: r.valid_from || "",
+      valid_until: r.valid_until || "",
+      visible: parseBool(r.visible),
+      priority: Number(r.priority || 0),
+    }));
+
+    const today = todayYYYYMMDD_Toronto();
+    const filtered = includeAll
+      ? items
+      : items.filter((i) => i.visible && inWindow(today, i.valid_from, i.valid_until));
+
+    // Ordenação: prioridade DESC, featured primeiro, depois nome
+    filtered.sort(
+      (a, b) =>
+        (b.priority - a.priority) ||
+        (Number(b.featured) - Number(a.featured)) ||
+        a.name_en.localeCompare(b.name_en)
+    );
+
+    // >>> Cabeçalhos de cache
+    if (!bust && TTL_SEC > 0) {
+      // Cache em EDGE (Vercel) com SWR igual ao TTL
+      res.setHeader("Cache-Control", `s-maxage=${TTL_SEC}, stale-while-revalidate=${TTL_SEC}`);
+    } else {
+      // Sem cache quando bust ou TTL=0
+      res.setHeader("Cache-Control", "no-store");
+    }
+
+    return res.status(200).json(filtered);
+  } catch (err) {
+    res.setHeader("Cache-Control", "no-store");
+    return res.status(500).json({ error: err?.message || "Unknown error" });
+  }
 }

@@ -22,7 +22,7 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx"
-, "pages/api/promotions.js", "pages/api/health.js"  ],
+, "pages/api/promotions.js", "pages/api/health.js", "pages/api/promotions_raw.js"  ],
   "exclude": [
     "node_modules"
   ]

@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { useLanguage } from "../context/LanguageContext";
 
+
 const translations: any = {
   fr: {
     top: "Haut",
