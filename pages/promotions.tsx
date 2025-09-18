@@ -7,11 +7,9 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/router";
 import ThemeToggle from "../components/ThemeToggle";
 
-// === Idiomas suportados via ?lang=xx ===
 const LANGS = ["en", "fr"] as const;
 type Lang = (typeof LANGS)[number];
 
-// === Tipo interno usado pela página (depois da normalização) ===
 type ApiPromo = {
   id: string;
   name: string;
@@ -19,6 +17,7 @@ type ApiPromo = {
   price: number;
   image: string;
   tags?: string[];
+  _tagsNorm?: string[];         // <- usamos para filtrar
   featured?: boolean;
   translations?: {
     en?: { name?: string; description?: string };
@@ -27,17 +26,21 @@ type ApiPromo = {
   priority?: number;
   valid_until?: string;
 };
-
 type Props = { authorized: boolean };
 
-/* ------------------ Helpers de normalização ------------------ */
+/* ---------- helpers ---------- */
+// remove acentos e baixa caixa
+const fold = (s: any) =>
+  String(s ?? "")
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .toLowerCase()
+    .trim();
 
-// converte "TRUE"/"FALSE" ou boolean => boolean
 const toBool = (v: any) =>
   typeof v === "boolean" ? v : String(v ?? "").trim().toLowerCase() === "true";
 
-// "A;B,C" => ["A","B","C"]
-const splitTags = (t: any): string[] =>
+const splitTagsRaw = (t: any): string[] =>
   Array.isArray(t)
     ? t
     : String(t ?? "")
@@ -45,31 +48,54 @@ const splitTags = (t: any): string[] =>
         .map((s) => s.trim())
         .filter(Boolean);
 
-// cria um id fallback caso a linha não tenha id
 const ensureId = (r: any) => {
-  const base = String(r.id ?? r.pid ?? r.pId ?? r.code ?? r.name_en ?? r.name_fr ?? r.name ?? "").trim();
+  const base = String(
+    r.id ?? r.pid ?? r.pId ?? r.code ?? r.name_en ?? r.name_fr ?? r.name ?? ""
+  ).trim();
   return base || `promo_${Math.random().toString(36).slice(2, 10)}`;
 };
 
-// mapeia “linha crua” (CSV->API) para o formato ApiPromo
-const normalizeRow = (r: any): ApiPromo => ({
-  id: ensureId(r),
-  // name/description “base” (usados na busca); cai para EN se não existir um neutro
-  name: r.name ?? r.name_en ?? r.name_fr ?? "",
-  description: r.description ?? r.description_en ?? r.description_fr ?? "",
-  price: Number(r.price ?? 0),
-  image: r.image ?? r.img ?? "",
-  tags: splitTags(r.tags),
-  featured: toBool(r.featured),
-  translations: {
-    en: { name: r.name_en, description: r.description_en },
-    fr: { name: r.name_fr, description: r.description_fr },
-  },
-  priority: Number(r.priority ?? 0),
-  valid_until: r.valid_until ?? r.validUntil ?? undefined,
-});
+const normalizeRow = (r: any): ApiPromo => {
+  const prettyTags = splitTagsRaw(r.tags);
+  return {
+    id: ensureId(r),
+    name: r.name ?? r.name_en ?? r.name_fr ?? "",
+    description: r.description ?? r.description_en ?? r.description_fr ?? "",
+    price: Number(r.price ?? 0),
+    image: r.image ?? r.img ?? "",
+    tags: prettyTags,
+    _tagsNorm: prettyTags.map(fold),
+    featured: toBool(r.featured),
+    translations: {
+      en: { name: r.name_en, description: r.description_en },
+      fr: { name: r.name_fr, description: r.description_fr },
+    },
+    priority: Number(r.priority ?? 0),
+    valid_until: r.valid_until ?? r.validUntil ?? undefined,
+  };
+};
 
-/* ------------------ Componente: troca de idioma ------------------ */
+// decide se um card casa com a consulta (multi-termo, OR por campo, AND entre termos)
+function matchesQuery(p: ApiPromo, lang: Lang, query: string) {
+  const terms = fold(query)
+    .split(/\s+/)
+    .filter(Boolean);
+  if (!terms.length) return true;
+
+  const name = fold(p.translations?.[lang]?.name || p.name || "");
+  const desc = fold(p.translations?.[lang]?.description || p.description || "");
+  const tags = p._tagsNorm || [];
+
+  return terms.every((t) => {
+    return (
+      name.includes(t) ||
+      desc.includes(t) ||
+      tags.some((tg) => tg.includes(t))
+    );
+  });
+}
+
+/* ---------- lang switch ---------- */
 function LangSwitch({ current }: { current: Lang }) {
   const router = useRouter();
   const q = router.query;
@@ -95,13 +121,12 @@ function LangSwitch({ current }: { current: Lang }) {
   );
 }
 
-/* ------------------ Página ------------------ */
+/* ---------- page ---------- */
 const PromotionsPage: NextPage<Props> = ({ authorized }) => {
   const router = useRouter();
   const queryLang = String(router.query.lang || "").toLowerCase();
   const lang: Lang = (LANGS.includes(queryLang as Lang) ? queryLang : "en") as Lang;
 
-  // baseUrl para OG/Twitter (SSR no Vercel e CSR no browser)
   const baseUrl =
     typeof window !== "undefined"
       ? window.location.origin
@@ -110,9 +135,29 @@ const PromotionsPage: NextPage<Props> = ({ authorized }) => {
 
   const [promos, setPromos] = useState<ApiPromo[] | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [filterTag, setFilterTag] = useState<string>("__all__");
-  const [search, setSearch] = useState<string>("");
+
+  const [filterTag, setFilterTag] = useState<string>("__all__"); // normalizada
+  const [searchInput, setSearchInput] = useState<string>("");
+  const [search, setSearch] = useState<string>("");              // debounced
   const [sort, setSort] = useState<"featured" | "price_asc" | "price_desc">("featured");
+
+  // aplica ?q & ?tag
+  useEffect(() => {
+    const q = String(router.query.q ?? "");
+    const tag = String(router.query.tag ?? "");
+    if (q) {
+      setSearchInput(q);
+      setSearch(fold(q));
+    }
+    if (tag) setFilterTag(fold(tag));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // debounce 200ms
+  useEffect(() => {
+    const h = setTimeout(() => setSearch(fold(searchInput)), 200);
+    return () => clearTimeout(h);
+  }, [searchInput]);
 
   const currency = useMemo(
     () =>
@@ -137,13 +182,13 @@ const PromotionsPage: NextPage<Props> = ({ authorized }) => {
     );
   }
 
-  // Carrega e normaliza os dados da API (aceita array puro ou { data: [...] })
+  // load API
   useEffect(() => {
     let alive = true;
     (async () => {
       try {
-        const buster = typeof window !== "undefined" ? Date.now() : 0;
-         const res = await fetch(`/api/promotions?bust=${buster}`, { cache: "no-store" });
+        const bust = typeof window !== "undefined" ? Date.now() : 0;
+        const res = await fetch(`/api/promotions?bust=${bust}`, { cache: "no-store" });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const raw = await res.json();
         const arr: any[] = Array.isArray(raw) ? raw : Array.isArray(raw?.data) ? raw.data : [];
@@ -158,35 +203,43 @@ const PromotionsPage: NextPage<Props> = ({ authorized }) => {
     };
   }, []);
 
+  // lista de chips (pretty = rótulo exibido; norm = valor para filtro)
   const allTags = useMemo(() => {
-    const s = new Set<string>();
-    (promos || []).forEach((p) => (p.tags || []).forEach((t) => s.add(t)));
-    return Array.from(s).sort((a, b) => a.localeCompare(b));
+    const map = new Map<string, string>(); // norm -> pretty
+    (promos || []).forEach((p) =>
+      (p.tags || []).forEach((pretty) => {
+        const norm = fold(pretty);
+        if (!map.has(norm)) map.set(norm, pretty);
+      })
+    );
+    return Array.from(map.entries())
+      .sort((a, b) => a[1].localeCompare(b[1]))
+      .map(([norm, pretty]) => ({ norm, pretty }));
   }, [promos]);
 
+  // filtro + busca + ordenação
   const visiblePromos = useMemo(() => {
     let list = (promos || []).slice();
 
-    if (filterTag !== "__all__") list = list.filter((p) => (p.tags || []).includes(filterTag));
+    if (filterTag !== "__all__") {
+      list = list.filter((p) => (p._tagsNorm || []).includes(filterTag));
+    }
 
-    const term = search.trim().toLowerCase();
-    if (term) {
-      list = list.filter((p) => {
-        const t = p.translations?.[lang] || {};
-        const name = (t.name || p.name || "").toLowerCase();
-        const desc = (t.description || p.description || "").toLowerCase();
-        return name.includes(term) || desc.includes(term);
-      });
+    if (search) {
+      list = list.filter((p) => matchesQuery(p, lang, search));
     }
 
     list.sort((a, b) => {
       if (sort === "featured") {
         const af = a.featured ? 1 : 0;
         const bf = b.featured ? 1 : 0;
-        if (bf !== af) return bf - af; // destacados primeiro
+        if (bf !== af) return bf - af;
         const ap = a.priority || 0;
         const bp = b.priority || 0;
-        return bp - ap; // prioridade desc
+        if (bp !== ap) return bp - ap;
+        const an = (a.translations?.[lang]?.name || a.name || "");
+        const bn = (b.translations?.[lang]?.name || b.name || "");
+        return an.localeCompare(bn);
       }
       if (sort === "price_asc") return Number(a.price) - Number(b.price);
       if (sort === "price_desc") return Number(b.price) - Number(a.price);
@@ -205,15 +258,11 @@ const PromotionsPage: NextPage<Props> = ({ authorized }) => {
       <Head>
         <title>Promotions</title>
         <meta name="robots" content="index,follow" />
-
-        {/* Open Graph */}
         <meta property="og:type" content="website" />
         <meta property="og:title" content={title} />
         <meta property="og:description" content={description} />
         <meta property="og:image" content={`${baseUrl}/hero/promos.jpg`} />
         <meta property="og:url" content={`${baseUrl}/promotions`} />
-
-        {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={title} />
         <meta name="twitter:description" content={description} />
@@ -250,7 +299,10 @@ const PromotionsPage: NextPage<Props> = ({ authorized }) => {
         <div className="mt-6 mb-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div className="flex flex-wrap gap-2">
             <button
-              onClick={() => setFilterTag("__all__")}
+              onClick={() => {
+                setFilterTag("__all__");
+                setSearchInput("");     // limpa busca ao voltar para “Todos”
+              }}
               className={[
                 "px-3 py-1 rounded-full text-xs uppercase tracking-wide border transition",
                 "border-gray-300 dark:border-white/15",
@@ -261,19 +313,23 @@ const PromotionsPage: NextPage<Props> = ({ authorized }) => {
             >
               {lang === "fr" ? "Tous" : "All"}
             </button>
-            {allTags.map((t) => (
+
+            {allTags.map(({ norm, pretty }) => (
               <button
-                key={t}
-                onClick={() => setFilterTag(t)}
+                key={norm}
+                onClick={() => {
+                  setFilterTag(norm);
+                  setSearchInput("");   // evita “conflito” tag + lupa
+                }}
                 className={[
                   "px-3 py-1 rounded-full text-xs uppercase tracking-wide border transition",
                   "border-gray-300 dark:border-white/15",
-                  filterTag === t
+                  filterTag === norm
                     ? "bg-gray-900 text-white border-gray-900 dark:bg-white dark:text-black dark:border-white"
                     : "hover:bg-gray-100 dark:hover:bg-white/10",
                 ].join(" ")}
               >
-                {t}
+                {pretty}
               </button>
             ))}
           </div>
@@ -284,13 +340,21 @@ const PromotionsPage: NextPage<Props> = ({ authorized }) => {
             </label>
             <input
               id="search"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
               placeholder={lang === "fr" ? "Rechercher..." : "Search..."}
               className="w-56 rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none
                          focus:border-black dark:focus:border-white
                          bg-white dark:bg-neutral-900 dark:text-white dark:border-white/15"
             />
+            {!!searchInput && (
+              <button
+                onClick={() => setSearchInput("")}
+                className="rounded-md border px-2 py-1 text-xs hover:bg-gray-100 dark:hover:bg-white/10"
+              >
+                {lang === "fr" ? "Effacer" : "Clear"}
+              </button>
+            )}
 
             <label htmlFor="sort" className="sr-only">
               {lang === "fr" ? "Trier" : "Sort"}
@@ -417,7 +481,7 @@ const PromotionsPage: NextPage<Props> = ({ authorized }) => {
 
 export default PromotionsPage;
 
-/* ------------------ Autorização opcional por chave ------------------ */
+/* ---------- auth opcional ---------- */
 export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
   const serverKey = String(process.env.PROMO_KEY || "");
   const key = String(ctx.query.k || "");
